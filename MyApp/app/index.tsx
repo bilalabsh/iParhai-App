@@ -9,6 +9,7 @@ const Index = () => {
   const [error, setError] = useState("");
 
   const handleSignUp = async () => {
+    setError("");
     if (!email || !password || !name) {
       setError("Please fill all fields");
       return;
