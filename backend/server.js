@@ -1,4 +1,5 @@
 const express = require("express");
+const router = express.Router();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 require("dotenv").config();
@@ -6,6 +7,8 @@ const mongoose=require('mongoose');
 const colors=require('colors');
 const userRoutes=require('./routes/userRoutes')
 const {notFound,errorHandler}=require('./middlewares/errorHandler')
+const {protect}=require('./middlewares/authMiddleware')
+
 const app = express();
 app.use(express.json());
 //to accpet json data
@@ -29,14 +32,17 @@ const connectDB=async()=>{
 connectDB();
 
 app.get("/", (req, res) => {
-  res.json({ message: "Hello from the backend!" });
+  res.json({ message: "Backend running" });
 });
 
 app.use('/api/user',userRoutes)
 app.use(notFound);
 app.use(errorHandler);
 
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => { // Bind to all interfaces  
   console.log(`Server running on PORT ${PORT}`.yellow.bold);
 });
+
+
