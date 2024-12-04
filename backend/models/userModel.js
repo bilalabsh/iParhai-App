@@ -14,8 +14,16 @@ const userSchema=mongoose.Schema({
     password:{
         type:String,
         required:true
-    }
-},{timestamp:true})
+    },
+    otp: {
+      type: String,
+      required:false
+    },
+    otpExpires: {
+      type: Date,
+    },
+  },
+{timestamp:true})
 
 userSchema.methods.matchPassword=async function(enteredPassword){
     return await bcrypt.compare(enteredPassword,this.password);

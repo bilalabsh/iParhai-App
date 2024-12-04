@@ -11,14 +11,19 @@ import {
 import { useRouter } from "expo-router";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
-import { LinearGradient } from "expo-linear-gradient"; // Ensure expo-linear-gradient is installed
+import { LinearGradient } from "expo-linear-gradient";
+import { loginUser } from "../api/api";
 
 const LoginPage = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [activeInput, setActiveInput] = useState(null); // Tracks the active input
-  const buttonScale = new Animated.Value(1); // For button press animation
-  const [hoveredSocial, setHoveredSocial] = useState(null); // Tracks hover state for social buttons
+  const [activeInput, setActiveInput] = useState(null);
+  const buttonScale = new Animated.Value(1);
+  const [hoveredSocial, setHoveredSocial] = useState(null);
+
+  const [email, setEmail] = useState(""); // Email state
+  const [password, setPassword] = useState(""); // Password state
+  const [otp, setOtp] = useState(""); // OTP state
 
   // Button Animation
   const handlePressIn = () => {
@@ -35,9 +40,24 @@ const LoginPage = () => {
     }).start();
   };
 
+  const handleLogin = async () => {
+    // Handle login with email, password, and OTP here
+    try {
+      const userData = { email, password, otp };
+      const data = await loginUser(userData); // Calling the loginUser function from api.js
+      if (data.token) {
+        // Handle successful login, store token, redirect, etc.
+        console.log("Login Successful", data);
+      } else {
+        console.error("Login failed", data.message);
+      }
+    } catch (error) {
+      console.error("Error logging in", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* Title */}
       <Animatable.Text animation="fadeInDown" style={styles.title}>
         Welcome Back!
       </Animatable.Text>
@@ -56,6 +76,8 @@ const LoginPage = () => {
           style={styles.input}
           placeholder="Username or Email"
           placeholderTextColor="#aaa"
+          value={email}
+          onChangeText={setEmail}
           onFocus={() => setActiveInput("username")}
           onBlur={() => setActiveInput(null)}
         />
@@ -76,6 +98,8 @@ const LoginPage = () => {
           placeholder="Password"
           placeholderTextColor="#aaa"
           secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
           onFocus={() => setActiveInput("password")}
           onBlur={() => setActiveInput(null)}
         />
@@ -88,6 +112,28 @@ const LoginPage = () => {
         </TouchableOpacity>
       </Animatable.View>
 
+      {/* OTP Input */}
+      <Animatable.View
+        animation="fadeInUp"
+        delay={400}
+        style={[
+          styles.inputContainer,
+          activeInput === "otp" && styles.activeInputContainer,
+        ]}
+      >
+        <MaterialIcons name="verified" size={20} color="#888" />
+        <TextInput
+          style={styles.input}
+          placeholder="Enter OTP"
+          placeholderTextColor="#aaa"
+          value={otp}
+          onChangeText={setOtp}
+          onFocus={() => setActiveInput("otp")}
+          onBlur={() => setActiveInput(null)}
+          keyboardType="numeric"
+        />
+      </Animatable.View>
+
       {/* Forgot Password */}
       <TouchableOpacity onPress={() => router.push("/forgotpass")}>
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
@@ -95,12 +141,16 @@ const LoginPage = () => {
 
       {/* Login Button */}
       <Animated.View
-        style={[styles.loginButtonWrapper, { transform: [{ scale: buttonScale }] }]}
+        style={[
+          styles.loginButtonWrapper,
+          { transform: [{ scale: buttonScale }] },
+        ]}
       >
         <TouchableOpacity
           style={styles.loginButton}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
+          onPress={handleLogin} // Call the login function here
         >
           <LinearGradient
             colors={["#4A90E2", "#007BFF"]}
@@ -153,7 +203,11 @@ const LoginPage = () => {
       </View>
 
       {/* Sign Up */}
-      <Animatable.View animation="fadeInUp" delay={700} style={styles.signUpContainer}>
+      <Animatable.View
+        animation="fadeInUp"
+        delay={700}
+        style={styles.signUpContainer}
+      >
         <Text style={styles.signUpText}>Create An Account</Text>
         <TouchableOpacity onPress={() => router.push("/signup")}>
           <Text style={styles.signUpLink}> Sign Up</Text>
@@ -161,9 +215,7 @@ const LoginPage = () => {
       </Animatable.View>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
+};const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",

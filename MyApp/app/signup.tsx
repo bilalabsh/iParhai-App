@@ -12,117 +12,100 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
 
-const SignupPage = () => {
+const SignupPage = ({ handleSignUp }) => {
   const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [activeInput, setActiveInput] = useState(null); // Tracks the active input
-  const buttonScale = new Animated.Value(1); // For button press animation
 
-  // Button Animation
-  const handlePressIn = () => {
-    Animated.spring(buttonScale, {
-      toValue: 0.9,
-      useNativeDriver: true,
-    }).start();
-  };
+  const handleSubmit = async () => {
+    setError("");
+    if (!name || !email || !password || !confirmPassword) {
+      setError("Please fill all fields");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
-  const handlePressOut = () => {
-    Animated.spring(buttonScale, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
+    try {
+      await handleSignUp(name, email, password);
+      router.push("/loginpage");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* Title */}
       <Animatable.Text animation="fadeInDown" style={styles.title}>
         Create an Account
       </Animatable.Text>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {/* Username Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={200}
-        style={[
-          styles.inputContainer,
-          activeInput === "username" && styles.activeInputContainer,
-        ]}
+        style={styles.inputContainer}
       >
         <MaterialIcons name="person" size={20} color="#888" />
         <TextInput
           style={styles.input}
           placeholder="Username"
-          placeholderTextColor="#aaa"
-          onFocus={() => setActiveInput("username")}
-          onBlur={() => setActiveInput(null)}
+          value={name}
+          onChangeText={setName}
         />
       </Animatable.View>
-
-      {/* Email Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={300}
-        style={[
-          styles.inputContainer,
-          activeInput === "email" && styles.activeInputContainer,
-        ]}
+        style={styles.inputContainer}
       >
         <MaterialIcons name="email" size={20} color="#888" />
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#aaa"
-          onFocus={() => setActiveInput("email")}
-          onBlur={() => setActiveInput(null)}
+          value={email}
+          onChangeText={setEmail}
         />
       </Animatable.View>
-
-      {/* Password Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={400}
-        style={[
-          styles.inputContainer,
-          activeInput === "password" && styles.activeInputContainer,
-        ]}
+        style={styles.inputContainer}
       >
         <MaterialIcons name="lock" size={20} color="#888" />
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#aaa"
+          value={password}
+          onChangeText={setPassword}
           secureTextEntry={!showPassword}
-          onFocus={() => setActiveInput("password")}
-          onBlur={() => setActiveInput(null)}
         />
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
           <MaterialIcons
             name={showPassword ? "visibility" : "visibility-off"}
             size={20}
-            color="#888"
           />
         </TouchableOpacity>
       </Animatable.View>
-
-      {/* Confirm Password Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={500}
-        style={[
-          styles.inputContainer,
-          activeInput === "confirmPassword" && styles.activeInputContainer,
-        ]}
+        style={styles.inputContainer}
       >
         <MaterialIcons name="lock" size={20} color="#888" />
         <TextInput
           style={styles.input}
           placeholder="Confirm Password"
-          placeholderTextColor="#aaa"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
           secureTextEntry={!showConfirmPassword}
-          onFocus={() => setActiveInput("confirmPassword")}
-          onBlur={() => setActiveInput(null)}
         />
         <TouchableOpacity
           onPress={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -130,42 +113,19 @@ const SignupPage = () => {
           <MaterialIcons
             name={showConfirmPassword ? "visibility" : "visibility-off"}
             size={20}
-            color="#888"
           />
         </TouchableOpacity>
       </Animatable.View>
-
-      {/* Signup Button */}
-      <Animated.View
-        style={[styles.signupButtonWrapper, { transform: [{ scale: buttonScale }] }]}
-      >
-        <TouchableOpacity
-          style={styles.signupButton}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
+      <TouchableOpacity style={styles.signupButton} onPress={handleSubmit}>
+        <LinearGradient
+          colors={["#4A90E2", "#007BFF"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.signupGradient}
         >
-          <LinearGradient
-            colors={["#4A90E2", "#007BFF"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.signupGradient}
-          >
-            <Text style={styles.signupButtonText}>Sign Up</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </Animated.View>
-
-      {/* Already have an account? */}
-      <Animatable.View
-        animation="fadeInUp"
-        delay={600}
-        style={styles.loginContainer}
-      >
-        <Text style={styles.loginText}>Already have an account?</Text>
-        <TouchableOpacity onPress={() => router.push("/loginpage")}>
-          <Text style={styles.loginLink}> Login</Text>
-        </TouchableOpacity>
-      </Animatable.View>
+          <Text style={styles.signupButtonText}>Sign Up</Text>
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -235,5 +195,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
 export default SignupPage;
