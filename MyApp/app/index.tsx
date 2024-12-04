@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import { View, TextInput, Text, TouchableOpacity } from "react-native";
 import axios from "axios";
+import { useRouter } from "expo-router";
+import GlobalStyles from "../styles/GlobalStyles";
 
 const Index = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSignUp = async () => {
     setError("");
@@ -14,84 +17,54 @@ const Index = () => {
       setError("Please fill all fields");
       return;
     }
-
     try {
       const response = await axios.post("http://localhost:5000/api/user", {
         name,
         email,
         password,
       });
-      console.log(response.data); // You can handle response here (e.g., save token, redirect, etc.)
+      console.log(response.data);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to sign up");
     }
   };
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please fill all fields");
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/user/login",
-        {
-          email,
-          password,
-        }
-      );
-      console.log(response.data); // Handle response (e.g., save token, navigate, etc.)
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to log in");
-    }
-  };
-
   return (
-    <View style={styles.container}>
+    <View style={GlobalStyles.container}>
+      <Text style={GlobalStyles.titleText}>Welcome</Text>
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Name"
         value={name}
         onChangeText={setName}
       />
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Password"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      <Button title="Sign Up" onPress={handleSignUp} />
-      <Button title="Login" onPress={handleLogin} />
+      {error ? <Text style={GlobalStyles.errorText}>{error}</Text> : null}
+
+      <TouchableOpacity style={GlobalStyles.button} onPress={handleSignUp}>
+        <Text style={GlobalStyles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[GlobalStyles.button, { backgroundColor: "#6c757d" }]}
+        onPress={() => router.push("/loginpage")}
+      >
+        <Text style={GlobalStyles.buttonText}>Go to Login</Text>
+      </TouchableOpacity>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
-  },
-  error: {
-    color: "red",
-    marginBottom: 10,
-  },
-});
 
 export default Index;
