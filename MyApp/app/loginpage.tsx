@@ -41,20 +41,21 @@ const LoginPage = () => {
   };
 
   const handleLogin = async () => {
-    // Handle login with email, password, and OTP here
-    try {
-      const userData = { email, password, otp };
-      const data = await loginUser(userData); // Calling the loginUser function from api.js
-      if (data.token) {
-        // Handle successful login, store token, redirect, etc.
-        console.log("Login Successful", data);
-      } else {
-        console.error("Login failed", data.message);
-      }
-    } catch (error) {
-      console.error("Error logging in", error);
+  try {
+    const userData = { email, password, otp };
+    const data = await loginUser(userData); // Calling the loginUser function from api.js
+    if (data.token) {
+      // Handle successful login, store token, redirect, etc.
+      console.log("Login Successful", data);
+      router.push("/dashboard"); // Navigate to the dashboard
+    } else {
+      console.error("Login failed", data.message);
     }
-  };
+  } catch (error) {
+    console.error("Error logging in", error);
+  }
+};
+
 
   return (
     <View style={styles.container}>

@@ -14,11 +14,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router"; // Import useRouter for navigation
 
 const AppIntroScreen = () => {
   const logoScale = useSharedValue(0); // Animation for logo
   const buttonScale = useSharedValue(1); // Animation for buttons
   const [hoveredButton, setHoveredButton] = useState(null); // Tracks hovered buttons
+  const router = useRouter(); // Initialize router for navigation
 
   // Animate logo on mount
   useEffect(() => {
@@ -88,6 +90,7 @@ const AppIntroScreen = () => {
             onPressOut={handlePressOut}
             onMouseEnter={() => setHoveredButton("explore")}
             onMouseLeave={() => setHoveredButton(null)}
+            onPress={() => router.push("/intro2")} // Navigate to Explore Features
           >
             <LinearGradient
               colors={["#3A78C0", "#0056B0"]}
@@ -109,6 +112,7 @@ const AppIntroScreen = () => {
             onPressOut={handlePressOut}
             onMouseEnter={() => setHoveredButton("getStarted")}
             onMouseLeave={() => setHoveredButton(null)}
+            onPress={() => router.push("signup")} // Navigate to Get Started
           >
             <Text style={styles.getStartedButtonText}>Get Started</Text>
           </TouchableOpacity>

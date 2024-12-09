@@ -26,11 +26,11 @@ const Layout = ({ children }) => {
             backgroundColor: "#fff",
           }}
         >
-          <TouchableOpacity onPress={() => router.push("/home")}>
+          <TouchableOpacity onPress={() => router.push("/dashboard")}>
             <MaterialIcons name="home" size={24} />
             <Text>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/subjects")}>
+          <TouchableOpacity onPress={() => router.push("/subjectspage")}>
             <MaterialIcons name="menu-book" size={24} />
             <Text>Subjects</Text>
           </TouchableOpacity>

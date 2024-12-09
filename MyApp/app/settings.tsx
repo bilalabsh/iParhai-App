@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import Layout from "./layout"; // Import your Layout component
 
 const SettingsScreen = () => {
   const router = useRouter();
@@ -32,6 +33,7 @@ const SettingsScreen = () => {
   const themeStyles = darkMode ? darkThemeStyles : lightThemeStyles;
 
   return (
+    <Layout>
     <View style={[styles.outerContainer, themeStyles.outerContainer]}>
       {/* Main Content */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -182,63 +184,9 @@ const SettingsScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* Navigation Bar */}
-      <View style={[styles.navBar, themeStyles.navBar]}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => router.push("/home")}
-        >
-          <MaterialIcons
-            name="home"
-            size={24}
-            color={darkMode ? "#A0A0A0" : "#4A4A4A"}
-          />
-          <Text style={[styles.navText, themeStyles.navText]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => router.push("/subjects")}
-        >
-          <MaterialIcons
-            name="menu-book"
-            size={24}
-            color={darkMode ? "#A0A0A0" : "#4A4A4A"}
-          />
-          <Text style={[styles.navText, themeStyles.navText]}>Subjects</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => router.push("/progress")}
-        >
-          <MaterialIcons
-            name="show-chart"
-            size={24}
-            color={darkMode ? "#A0A0A0" : "#4A4A4A"}
-          />
-          <Text style={[styles.navText, themeStyles.navText]}>Progress</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => router.push("/settings")}
-        >
-          <MaterialIcons
-            name="settings"
-            size={24}
-            color={darkMode ? "white" : "black"}
-          />
-          <Text
-            style={[
-              styles.navText,
-              styles.activeNavText,
-              themeStyles.activeNavText,
-            ]}
-          >
-            Settings
-          </Text>
-        </TouchableOpacity>
-      </View>
     </View>
+    </Layout>
+    
   );
 };
 

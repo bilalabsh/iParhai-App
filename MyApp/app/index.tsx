@@ -3,6 +3,7 @@ import { View } from "react-native";
 import SignupPage from "./signup";
 import axios from "axios";
 import GlobalStyles from "../styles/GlobalStyles";
+import AppIntroScreen from "./intro1";
 
 const Index = () => {
   const handleSignUp = async (name, email, password) => {
@@ -22,7 +23,7 @@ const Index = () => {
 
   return (
     <View style={GlobalStyles.container}>
-      <SignupPage handleSignUp={handleSignUp} />
+      <AppIntroScreen></AppIntroScreen>
     </View>
   );
 };

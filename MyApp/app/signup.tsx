@@ -6,9 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Animated,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -21,6 +22,8 @@ const SignupPage = ({ handleSignUp }) => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const buttonScale = new Animated.Value(1);
+  const [hoveredSocial, setHoveredSocial] = useState(null);
 
   const handleSubmit = async () => {
     setError("");
@@ -41,13 +44,31 @@ const SignupPage = ({ handleSignUp }) => {
     }
   };
 
+  const handlePressIn = () => {
+    Animated.spring(buttonScale, {
+      toValue: 0.9,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(buttonScale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
     <View style={styles.container}>
+      {/* Title */}
       <Animatable.Text animation="fadeInDown" style={styles.title}>
         Create an Account
       </Animatable.Text>
+
+      {/* Error Message */}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
+      {/* Username Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={200}
@@ -61,6 +82,8 @@ const SignupPage = ({ handleSignUp }) => {
           onChangeText={setName}
         />
       </Animatable.View>
+
+      {/* Email Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={300}
@@ -74,6 +97,8 @@ const SignupPage = ({ handleSignUp }) => {
           onChangeText={setEmail}
         />
       </Animatable.View>
+
+      {/* Password Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={400}
@@ -91,9 +116,12 @@ const SignupPage = ({ handleSignUp }) => {
           <MaterialIcons
             name={showPassword ? "visibility" : "visibility-off"}
             size={20}
+            color="#888"
           />
         </TouchableOpacity>
       </Animatable.View>
+
+      {/* Confirm Password Input */}
       <Animatable.View
         animation="fadeInUp"
         delay={500}
@@ -113,19 +141,77 @@ const SignupPage = ({ handleSignUp }) => {
           <MaterialIcons
             name={showConfirmPassword ? "visibility" : "visibility-off"}
             size={20}
+            color="#888"
           />
         </TouchableOpacity>
       </Animatable.View>
-      <TouchableOpacity style={styles.signupButton} onPress={handleSubmit}>
-        <LinearGradient
-          colors={["#4A90E2", "#007BFF"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.signupGradient}
+
+      {/* Sign Up Button */}
+      <Animated.View
+        style={[styles.signupButtonWrapper, { transform: [{ scale: buttonScale }] }]}
+      >
+        <TouchableOpacity
+          style={styles.signupButton}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={handleSubmit}
         >
-          <Text style={styles.signupButtonText}>Sign Up</Text>
-        </LinearGradient>
-      </TouchableOpacity>
+          <LinearGradient
+            colors={["#4A90E2", "#007BFF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.signupGradient}
+          >
+            <Text style={styles.signupButtonText}>Sign Up</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Social Buttons */}
+      <Text style={styles.dividerText}>- OR Continue with -</Text>
+      <View style={styles.socialContainer}>
+        {["google", "apple", "facebook"].map((platform, index) => (
+          <Animatable.View
+            key={platform}
+            animation="bounceIn"
+            delay={600 + index * 100}
+            style={[
+              styles.socialButton,
+              hoveredSocial === platform && styles.socialButtonHovered,
+            ]}
+          >
+            <TouchableOpacity
+              onPress={() => console.log(`${platform} signup`)}
+              onMouseEnter={() => setHoveredSocial(platform)}
+              onMouseLeave={() => setHoveredSocial(null)}
+            >
+              {platform === "google" && (
+  <Image
+    source={{
+      uri: "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg",
+    }}
+    style={styles.socialIcon}
+  />
+)}
+
+              {platform === "apple" && (
+                <FontAwesome name="apple" size={24} color="black" />
+              )}
+              {platform === "facebook" && (
+                <FontAwesome name="facebook" size={24} color="#1877F2" />
+              )}
+            </TouchableOpacity>
+          </Animatable.View>
+        ))}
+      </View>
+
+      {/* Redirect to Login */}
+      <View style={styles.loginContainer}>
+        <Text style={styles.loginText}>Already have an account?</Text>
+        <TouchableOpacity onPress={() => router.push("/loginpage")}>
+          <Text style={styles.loginLink}> Login</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -139,25 +225,27 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: "700",
-    marginBottom: 20,
-    color: "#000",
+    color: "#333",
     textAlign: "center",
+    marginBottom: 20,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginBottom: 10,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 10,
     marginBottom: 15,
     width: "100%",
     backgroundColor: "#f7f7f7",
-  },
-  activeInputContainer: {
-    borderColor: "#000",
   },
   input: {
     flex: 1,
@@ -167,25 +255,50 @@ const styles = StyleSheet.create({
   },
   signupButtonWrapper: {
     width: "100%",
-    marginBottom: 20,
   },
   signupButton: {
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: "hidden",
   },
   signupGradient: {
     paddingVertical: 15,
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 10,
   },
   signupButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
+  dividerText: {
+    color: "#888",
+    marginVertical: 15,
+    fontSize: 14,
+  },
+  socialContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  socialButton: {
+    marginHorizontal: 10,
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  socialButtonHovered: {
+    backgroundColor: "#ddd",
+  },
+  socialIcon: {
+    width: 24,
+    height: 24,
+  },
   loginContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 20,
   },
   loginText: {
     color: "#888",
@@ -193,6 +306,8 @@ const styles = StyleSheet.create({
   loginLink: {
     color: "#007BFF",
     fontWeight: "bold",
+    marginLeft: 5,
   },
 });
+
 export default SignupPage;
