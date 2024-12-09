@@ -12,8 +12,9 @@ import { useRouter } from "expo-router";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
+import axios from "axios"; // Make sure axios is imported
 
-const SignupPage = ({ handleSignUp }) => {
+const SignupPage = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,6 +25,26 @@ const SignupPage = ({ handleSignUp }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const buttonScale = new Animated.Value(1);
   const [hoveredSocial, setHoveredSocial] = useState(null);
+
+  const handleSignUp = async (
+    name: string,
+    email: string,
+    password: string
+  ) => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/user", {
+        name,
+        email,
+        password,
+      });
+      console.log("User registered:", response.data);
+      // Additional success logic (e.g., navigate to another screen)
+      router.push("/loginpage"); // Navigate to the login page after successful signup
+    } catch (err) {
+      console.error(err.response?.data?.message || "Failed to sign up");
+      setError(err.response?.data?.message || "Failed to sign up");
+    }
+  };
 
   const handleSubmit = async () => {
     setError("");
@@ -38,7 +59,6 @@ const SignupPage = ({ handleSignUp }) => {
 
     try {
       await handleSignUp(name, email, password);
-      router.push("/loginpage");
     } catch (err) {
       setError(err.message);
     }
@@ -60,7 +80,6 @@ const SignupPage = ({ handleSignUp }) => {
 
   return (
     <View style={styles.container}>
-      {/* Title */}
       <Animatable.Text animation="fadeInDown" style={styles.title}>
         Create an Account
       </Animatable.Text>
@@ -148,7 +167,10 @@ const SignupPage = ({ handleSignUp }) => {
 
       {/* Sign Up Button */}
       <Animated.View
-        style={[styles.signupButtonWrapper, { transform: [{ scale: buttonScale }] }]}
+        style={[
+          styles.signupButtonWrapper,
+          { transform: [{ scale: buttonScale }] },
+        ]}
       >
         <TouchableOpacity
           style={styles.signupButton}
@@ -186,14 +208,13 @@ const SignupPage = ({ handleSignUp }) => {
               onMouseLeave={() => setHoveredSocial(null)}
             >
               {platform === "google" && (
-  <Image
-    source={{
-      uri: "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg",
-    }}
-    style={styles.socialIcon}
-  />
-)}
-
+                <Image
+                  source={{
+                    uri: "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg",
+                  }}
+                  style={styles.socialIcon}
+                />
+              )}
               {platform === "apple" && (
                 <FontAwesome name="apple" size={24} color="black" />
               )}
