@@ -8,6 +8,7 @@ import {
   Animated,
   Image,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
@@ -32,12 +33,12 @@ const SignupPage = () => {
     password: string
   ) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/user", {
+      const response = await axios.post("http://192.168.18.53:5000/api/user", {
         name,
         email,
         password,
       });
-      console.log("User registered:", response.data);
+      console.log("User registered:", response.data); 
       // Additional success logic (e.g., navigate to another screen)
       router.push("/loginpage"); // Navigate to the login page after successful signup
     } catch (err) {

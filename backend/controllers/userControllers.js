@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
+const { v4: uuidv4 } = require("uuid");
 const generateToken = require("../config/generateToken");
 const { generateOTP, sendOTP } = require("../config/generateOTP");
 
@@ -83,6 +84,10 @@ const authUser = asyncHandler(async (req, res) => {
 
   // Check if OTP is valid and not expired
   if (user.otp === otp && user.otpExpires > Date.now()) {
+    const sessionId = uuidv4();
+
+     user.sessionId = sessionId;
+     await user.save();
     // OTP is valid, generate token and return user data
     res.json({
       _id: user._id,
@@ -90,6 +95,7 @@ const authUser = asyncHandler(async (req, res) => {
       email: user.email,
       token: generateToken(user._id),
       otp: user.otp,
+      sessionId,
     });
   } else {
     // Invalid OTP or OTP expired
