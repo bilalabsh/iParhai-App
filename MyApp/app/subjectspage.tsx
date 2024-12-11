@@ -489,6 +489,32 @@ const subjectsData = [
               ))}
           </ScrollView>
         )}
+        {/* Selected Subtopics */}
+        {activeTab === "Topical" && (
+          <View style={styles.selectedContainer}>
+            <Text style={styles.selectedTitle}>Selected Subtopics</Text>
+            {selectedSubtopics.length === 0 ? (
+              <Text style={styles.noSelectionText}>
+                Select your subtopics from the list above
+              </Text>
+            ) : (
+              <FlatList
+                data={selectedSubtopics}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <Text style={styles.selectedSubtopic}>{item}</Text>
+                )}
+              />
+            )}
+          </View>
+        )}
+
+        {/* Generate Resources Button */}
+        {activeTab === "Topical" && (
+          <TouchableOpacity style={styles.generateButton}>
+            <Text style={styles.generateButtonText}>Generate Resources</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </Layout>
   );
