@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
@@ -24,6 +26,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState(""); // Email state
   const [password, setPassword] = useState(""); // Password state
   const [otp, setOtp] = useState(""); // OTP state
+  const [loading, setLoading] = useState(true); // To handle initial loading state
 
   // Button Animation
   const handlePressIn = () => {
@@ -40,22 +43,41 @@ const LoginPage = () => {
     }).start();
   };
 
-  const handleLogin = async () => {
-  try {
-    const userData = { email, password, otp };
-    const data = await loginUser(userData); // Calling the loginUser function from api.js
-    if (data.token) {
-      // Handle successful login, store token, redirect, etc.
-      console.log("Login Successful", data);
-      router.push("/dashboard"); // Navigate to the dashboard
-    } else {
-      console.error("Login failed", data.message);
-    }
-  } catch (error) {
-    console.error("Error logging in", error);
-  }
-};
+  useEffect(() => {
+    const checkUserLogin = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("authToken");
+        console.log("Token fetched:", token);
+        if (token) {
+          router.replace("/dashboard"); // Redirect only if token exists
+        } else {
+          setLoading(false); // Ensure loading state is updated when no token
+        }
+      } catch (error) {
+        console.error("Error checking user login:", error);
+      }
+    };
 
+    checkUserLogin();
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      const userData = { email, password, otp };
+      const data = await loginUser(userData);
+      if (data.token) {
+        console.log("arrha idhar ok");
+        console.log("ab idhar ok");
+        console.log("Login Successful", data);
+        await SecureStore.setItemAsync("authToken", data.token);
+        router.push("/dashboard"); //dashboard
+      } else {
+        console.error("Login failed", data.message);
+      }
+    } catch (error) {
+      console.error("Error logging in", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -216,7 +238,8 @@ const LoginPage = () => {
       </Animatable.View>
     </View>
   );
-};const styles = StyleSheet.create({
+};
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",

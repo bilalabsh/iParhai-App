@@ -1,8 +1,48 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from "react-native";
+import React, { useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  BackHandler,
+} from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { useRouter } from "expo-router";
 import Layout from "./layout"; // Import your Layout component
 
 const Dashboard = () => {
+  const router = useRouter();
+
+  // Prevent navigation back to the login/signup screen
+  useEffect(() => {
+    const preventBackNavigation = () => {
+      if (router.pathname === "/loginpage") {
+        return false; // Allow back navigation on login screen
+      }
+      return true; // Prevent back navigation on dashboard
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      preventBackNavigation
+    );
+
+    return () => backHandler.remove();
+  }, [router.pathname]); // Add router.pathname as a dependency to track page changes
+
+  // Check if user is logged in; redirect to login if not
+  useEffect(() => {
+    const checkUserLogin = async () => {
+    const token = await SecureStore.getItemAsync("authToken");
+      if (!token) {
+        router.replace("/loginpage"); // Redirect to login if no token is found
+      }
+    };
+
+    checkUserLogin();
+  }, []);
   const weeklyStreak = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const streakStatus = ["X", "X", "X", "X", "X", "X", "X"]; // Example streak
 
@@ -33,7 +73,9 @@ const Dashboard = () => {
 
         {/* Diagnostic Test Button */}
         <TouchableOpacity style={styles.diagnosticButton}>
-          <Text style={styles.diagnosticButtonText}>Take a Diagnostic Test</Text>
+          <Text style={styles.diagnosticButtonText}>
+            Take a Diagnostic Test
+          </Text>
         </TouchableOpacity>
 
         {/* Carousel/Additional Info Section */}

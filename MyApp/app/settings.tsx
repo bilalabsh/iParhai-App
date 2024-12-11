@@ -10,20 +10,29 @@ import {
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import Layout from "./layout"; // Import your Layout component
 
 const SettingsScreen = () => {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Logout",
         style: "destructive",
-        onPress: () => {
-          router.replace("/loginpage"); // Replace with login page
+        onPress: async () => {
+          try {
+            const token = await SecureStore.getItemAsync("authToken");
+            console.log("Auth Token:", token);
+            await SecureStore.deleteItemAsync("authToken"); // Clear token
+            router.replace("/loginpage"); // Redirect to login page
+          } catch (error) {
+            console.error("Failed to clear session:", error);
+          }
         },
       },
     ]);
