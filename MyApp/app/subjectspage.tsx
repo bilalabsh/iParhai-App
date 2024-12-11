@@ -22,25 +22,28 @@ const SubjectsPage = () => {
   const [selectedSubtopics, setSelectedSubtopics] = useState([]);
   const [searchText, setSearchText] = useState(""); // State for selected subtopics
 
-   const fetchQuestions = async () => {
-     if (selectedSubtopics.length === 0) {
-       alert("Please select at least one subtopic to generate resources.");
-       return;
-     }
+const fetchQuestions = async () => {
+  if (selectedSubtopics.length === 0) {
+    alert('Please select at least one subtopic to generate resources.');
+    return;
+  }
 
-     try {
-       const questions = await getQuestionsBySubtopics(selectedSubtopics);
-       console.log("Fetched Questions:", questions);
-        
-       router.push({
-         pathname: "/topicalquestions",
-         query: { questions: JSON.stringify(questions) }, // Passing questions as a query parameter
-       });
-       // Handle the questions (e.g., navigate to a new screen or display them)
-     } catch (error) {
-       alert("Failed to fetch questions. Please try again later.");
-     }
-   };
+  try {
+    const questionsResponse = await getQuestionsBySubtopics(selectedSubtopics);
+    const { questions } = questionsResponse;
+
+    console.log('Fetched Questions:', questions);
+
+    // Save questions to sessionStorage
+    sessionStorage.setItem('questions', JSON.stringify(questions));
+
+    router.push('/topicalquestions');
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+    alert('Failed to fetch questions. Please try again later.');
+  }
+};
+
 
 
 const subjectsData = [

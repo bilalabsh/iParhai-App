@@ -1,73 +1,160 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Image } from "react-native";
 
 const TopicalQuestions = () => {
-  const router = useRouter();
   const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (router.params && router.params.questions) {
-        try {
-          const questionsData = JSON.parse(router.params.questions);
-          console.log("Parsed Questions:", questionsData); // Log the parsed data
-          setQuestions(questionsData);
-        } catch (error) {
-          console.error("Error parsing questions data:", error);
-        }
-      } else {
-        console.log("No questions in params.");  // Log if no questions are available in params
+    const fetchQuestionsFromSession = () => {
+      const storedQuestions = sessionStorage.getItem("questions");
+      if (storedQuestions) {
+        const parsedQuestions = JSON.parse(storedQuestions);
+          setQuestions(
+            parsedQuestions.map((q, index) => ({
+              id: index.toString(),
+              question: q.Question,
+              image: q.image_q || null,
+              
+              options: Object.values(q.Options),
+              answer: q.answer,
+              image2: q.image_o || null,
+              selectedOption: null,
+              showAnswer: false,
+            }))
+        );
       }
-      setLoading(false);
     };
 
-    fetchData();
-  }, [router.params]); // Trigger when router.params changes
+    fetchQuestionsFromSession();
+  }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading questions...</Text>
-      </View>
+  const toggleAnswer = (id) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) =>
+        q.id === id ? { ...q, showAnswer: !q.showAnswer } : q
+      )
     );
-  }
+  };
 
-  if (questions.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text>No questions available. Please try again later.</Text>
-      </View>
+  const selectOption = (questionId, option) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) =>
+        q.id === questionId ? { ...q, selectedOption: option } : q
+      )
     );
-  }
+  };
+
+  const renderQuestion = ({ item }) => (
+    <View style={styles.questionCard}>
+      <Text style={styles.questionText}>{`Q${item.id}) ${item.question}`}</Text>
+      {item.image && (
+        <Image source={{ uri: item.image }} style={styles.questionImage} />
+      )}
+      {item.image2 && (
+        <Image source={{ uri: item.image2 }} style={styles.questionImage} />
+      )}
+      {(item.image2 ? ["A", "B", "C", "D"] : item.options).map((option, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[
+            styles.optionContainer,
+            item.selectedOption === option && styles.selectedOption,
+          ]}
+          onPress={() => selectOption(item.id, option)}
+        >
+          <Text style={styles.optionText}>{option}</Text>
+        </TouchableOpacity>
+      ))}
+      {item.showAnswer && (
+        <Text style={styles.answerText}>{`Answer: ${item.answer}`}</Text>
+      )}
+      <TouchableOpacity
+        style={styles.showAnswerButton}
+        onPress={() => toggleAnswer(item.id)}
+      >
+        <Text style={styles.showAnswerText}>
+          {item.showAnswer ? "Hide Answer" : "Show Answer"}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Topical Questions</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>Yearly Solved Paper</Text>
       <FlatList
         data={questions}
-        renderItem={({ item }) => (
-          <View style={styles.questionContainer}>
-            <Text>{item.questionText}</Text> {/* Adjust according to your question structure */}
-          </View>
-        )}
+        renderItem={renderQuestion}
         keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={styles.listContainer}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    flex: 1,
+    backgroundColor: "#f9f9f9",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  header: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 10,
   },
-  questionContainer: {
+  listContainer: {
+    padding: 10,
+  },
+  questionCard: {
+    backgroundColor: "#fff",
+    padding: 15,
     marginBottom: 10,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  questionText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  questionImage: {
+    width: "100%",
+    height: 200,
+    resizeMode: "contain",
+    marginBottom: 10,
+  },
+  optionContainer: {
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 5,
+    marginBottom: 5,
+  },
+  selectedOption: {
+    backgroundColor: "#4c6ef5",
+  },
+  optionText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  answerText: {
+    fontSize: 14,
+    color: "green",
+    marginTop: 10,
+  },
+  showAnswerButton: {
+    marginTop: 10,
+    backgroundColor: "#4c6ef5",
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  showAnswerText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
   },
 });
 
