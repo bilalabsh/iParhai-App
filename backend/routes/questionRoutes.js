@@ -8,7 +8,7 @@ router.get(
 );
 router.get(
   "/questions/subtopic/:subtopic",
-  questionController.getQuestionsBySubtopic
+  questionController.getQuestionsBySubtopic 
 );
 
 module.exports = router;

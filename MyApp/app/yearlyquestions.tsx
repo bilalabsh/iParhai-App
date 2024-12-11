@@ -1,44 +1,33 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const QuestionsPage = () => {
-  const [questions, setQuestions] = useState([
-    {
-      id: "1",
-      question: "Which word is the name of a vector quantity?",
-      image: null,
-      options: ["density", "displacement", "energy", "speed"],
-      answer: "displacement",
-      selectedOption: null,
-      showAnswer: false,
-    },
-    {
-      id: "2",
-      question: "What is the size of the resultant of the two forces shown in the diagram?",
-      image: "https://utfs.io/f/HdnjclN1lG3zhbAaXhJIEGCfp04UgoDAMtVrSuNKWn9QcT6v",
-      options: ["1.0 N", "3.5 N", "5.0 N", "7.0 N"],
-      answer: "5.0 N",
-      selectedOption: null,
-      showAnswer: false,
-    },
-    {
-      id: "3",
-      question:
-        "An object is placed at a distance from a converging lens that is equal to twice the focal length of the lens. Which statement about the image is correct?",
-      image: null,
-      options: [
-        "It is enlarged",
-        "It is inverted",
-        "It is on the same side of the lens as the object",
-        "It is virtual",
-      ],
-      answer: "It is inverted",
-      selectedOption: null,
-      showAnswer: false,
-    },
-  ]);
-
+  const [questions, setQuestions] = useState([]);
   const [selectedAnswers, setSelectedAnswers] = useState([]);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const questionsData = await AsyncStorage.getItem("questions");
+        if (questionsData) {
+          setQuestions(JSON.parse(questionsData));
+        }
+      } catch (error) {
+        console.error("Error fetching questions from AsyncStorage:", error);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
 
   const toggleAnswer = (id) => {
     setQuestions((prevQuestions) =>
@@ -56,7 +45,9 @@ const QuestionsPage = () => {
     );
 
     setSelectedAnswers((prevSelected) => {
-      const updatedAnswers = prevSelected.filter((ans) => ans.id !== questionId);
+      const updatedAnswers = prevSelected.filter(
+        (ans) => ans.id !== questionId
+      );
       return [...updatedAnswers, { id: questionId, selectedOption: option }];
     });
   };
@@ -99,7 +90,7 @@ const QuestionsPage = () => {
       <FlatList
         data={questions}
         renderItem={renderQuestion}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
       />
     </SafeAreaView>

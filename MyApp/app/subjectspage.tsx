@@ -11,6 +11,7 @@ import {
 import Layout from "./layout"; // Import your Layout component
 import { useRouter } from "expo-router";
 import { getQuestionsBySubtopics } from "./questionsapi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const SubjectsPage = () => {
@@ -21,6 +22,17 @@ const SubjectsPage = () => {
   const [expandedSeason, setExpandedSeason] = useState(null); // For seasons
   const [selectedSubtopics, setSelectedSubtopics] = useState([]);
   const [searchText, setSearchText] = useState(""); // State for selected subtopics
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedSeason, setSelectedSeason] = useState(null);
+  const [selectedPaper, setSelectedPaper] = useState(null);
+
+  const paperData = [2019, 2020, 2021, 2022, 2023].map((year) => ({
+    year,
+    seasons: [
+      { season: "Summer", papers: ["Paper 11", "Paper 12"] },
+      { season: "Winter", papers: ["Paper 11", "Paper 12"] },
+    ],
+  }));
 
 const fetchQuestions = async () => {
   if (selectedSubtopics.length === 0) {
@@ -35,7 +47,7 @@ const fetchQuestions = async () => {
     console.log('Fetched Questions:', questions);
 
     // Save questions to sessionStorage
-    sessionStorage.setItem('questions', JSON.stringify(questions));
+    await AsyncStorage.setItem('questions', JSON.stringify(questions));
 
     router.push('/topicalquestions');
   } catch (error) {
@@ -300,11 +312,11 @@ const subjectsData = [
     seasons: [
       {
         season: "Summer",
-        papers: ["Paper 1", "Paper 2", "Paper 3"],
+        papers: ["Paper 11", "Paper 12"],
       },
       {
         season: "Winter",
-        papers: ["Paper 1", "Paper 2", "Paper 3"],
+        papers: ["Paper 11", "Paper 12"],
       },
     ],
   }));

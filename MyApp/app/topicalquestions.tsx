@@ -1,32 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Image } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TopicalQuestions = () => {
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
-    const fetchQuestionsFromSession = () => {
-      const storedQuestions = sessionStorage.getItem("questions");
-      if (storedQuestions) {
-        const parsedQuestions = JSON.parse(storedQuestions);
+    const fetchQuestionsFromStorage = async () => {
+      try {
+        const storedQuestions = await AsyncStorage.getItem("questions"); // Use AsyncStorage
+        if (storedQuestions) {
+          const parsedQuestions = JSON.parse(storedQuestions);
           setQuestions(
             parsedQuestions.map((q, index) => ({
               id: index.toString(),
               question: q.Question,
               image: q.image_q || null,
-              
               options: Object.values(q.Options),
               answer: q.answer,
               image2: q.image_o || null,
               selectedOption: null,
               showAnswer: false,
             }))
-        );
+          );
+        }
+      } catch (error) {
+        console.error("Error retrieving questions from AsyncStorage:", error);
       }
     };
 
-    fetchQuestionsFromSession();
+    fetchQuestionsFromStorage();
   }, []);
+
 
   const toggleAnswer = (id) => {
     setQuestions((prevQuestions) =>
