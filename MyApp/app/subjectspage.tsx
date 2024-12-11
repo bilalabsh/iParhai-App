@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import Layout from "./layout"; // Import your Layout component
 import { useRouter } from "expo-router";
+import { getQuestionsBySubtopics } from "./questionsapi";
+
 
 const SubjectsPage = () => {
   const router = useRouter(); // Ensure this is inside the component to avoid scope issues.
@@ -18,7 +20,28 @@ const SubjectsPage = () => {
   const [expandedYear, setExpandedYear] = useState(null); // For past papers
   const [expandedSeason, setExpandedSeason] = useState(null); // For seasons
   const [selectedSubtopics, setSelectedSubtopics] = useState([]);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(""); // State for selected subtopics
+
+   const fetchQuestions = async () => {
+     if (selectedSubtopics.length === 0) {
+       alert("Please select at least one subtopic to generate resources.");
+       return;
+     }
+
+     try {
+       const questions = await getQuestionsBySubtopics(selectedSubtopics);
+       console.log("Fetched Questions:", questions);
+        
+       router.push({
+         pathname: "/topicalquestions",
+         query: { questions: JSON.stringify(questions) }, // Passing questions as a query parameter
+       });
+       // Handle the questions (e.g., navigate to a new screen or display them)
+     } catch (error) {
+       alert("Failed to fetch questions. Please try again later.");
+     }
+   };
+
 
 const subjectsData = [
   {
@@ -337,10 +360,7 @@ const subjectsData = [
         <View style={styles.tabsContainer}>
           <TouchableOpacity
             onPress={() => setActiveTab("Topical")}
-            style={[
-              styles.tab,
-              activeTab === "Topical" && styles.activeTab,
-            ]}
+            style={[styles.tab, activeTab === "Topical" && styles.activeTab]}
           >
             <Text
               style={[
@@ -398,9 +418,7 @@ const subjectsData = [
                         >
                           <Text style={styles.subtopicText}>{subtopic}</Text>
                           <Text style={styles.icon}>
-                            {selectedSubtopics.includes(subtopic)
-                              ? "✓"
-                              : "+"}
+                            {selectedSubtopics.includes(subtopic) ? "✓" : "+"}
                           </Text>
                         </TouchableOpacity>
                       ))}
@@ -446,38 +464,36 @@ const subjectsData = [
                               {expandedSeason === uniqueSeasonKey && (
                                 <View style={styles.subtopicsContainer}>
                                   {Array.isArray(season.papers) &&
-                                    season.papers.map(
-                                      (paper, paperIndex) => (
-                                        <View
-                                          key={paperIndex}
-                                          style={styles.paperContainer}
+                                    season.papers.map((paper, paperIndex) => (
+                                      <View
+                                        key={paperIndex}
+                                        style={styles.paperContainer}
+                                      >
+                                        <Text style={styles.paperText}>
+                                          {paper}
+                                        </Text>
+                                        <TouchableOpacity
+                                          style={styles.qpButton}
+                                          onPress={() =>
+                                            handleNavigation(`/qp/${paper}`)
+                                          }
                                         >
-                                          <Text style={styles.paperText}>
-                                            {paper}
+                                          <Text style={styles.buttonText}>
+                                            QP
                                           </Text>
-                                          <TouchableOpacity
-                                            style={styles.qpButton}
-                                            onPress={() =>
-                                              handleNavigation(`/qp/${paper}`)
-                                            }
-                                          >
-                                            <Text style={styles.buttonText}>
-                                              QP
-                                            </Text>
-                                          </TouchableOpacity>
-                                          <TouchableOpacity
-                                            style={styles.msButton}
-                                            onPress={() =>
-                                              handleNavigation(`/ms/${paper}`)
-                                            }
-                                          >
-                                            <Text style={styles.buttonText}>
-                                              MS
-                                            </Text>
-                                          </TouchableOpacity>
-                                        </View>
-                                      )
-                                    )}
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                          style={styles.msButton}
+                                          onPress={() =>
+                                            handleNavigation(`/ms/${paper}`)
+                                          }
+                                        >
+                                          <Text style={styles.buttonText}>
+                                            MS
+                                          </Text>
+                                        </TouchableOpacity>
+                                      </View>
+                                    ))}
                                 </View>
                               )}
                             </View>
@@ -511,7 +527,10 @@ const subjectsData = [
 
         {/* Generate Resources Button */}
         {activeTab === "Topical" && (
-          <TouchableOpacity style={styles.generateButton}>
+          <TouchableOpacity
+            style={styles.generateButton}
+            onPress={fetchQuestions}
+          >
             <Text style={styles.generateButtonText}>Generate Resources</Text>
           </TouchableOpacity>
         )}

@@ -1,21 +1,19 @@
-// controllers/questionController.js
+
 const Question = require("../models/questionModel");
 
 const getQuestionsByQuestionNumber = async (req, res) => {
-  const questionNumber = req.params[0]; // Extract the full questionNumber
+  const questionNumber = req.params[0]; 
 
   try {
-    // Perform the query using the questionNumber parameter
     const questions = await Question.find({
       QuestionNumber: { $regex: questionNumber, $options: "i" },
     });
 
-    // If no questions are found, send a 404 response
+    
     if (questions.length === 0) {
       return res.status(404).json({ message: "No questions found" });
     }
 
-    // Send the questions in the response
     res.status(200).json(questions);
   } catch (err) {
     console.error(err);
@@ -28,16 +26,17 @@ const getQuestionsByQuestionNumber = async (req, res) => {
 
 const getQuestionsBySubtopic = async (req, res) => {
   try {
-    const subtopic = req.params.subtopic;
+    // Get subtopics from the URL parameter
+    const subtopics = req.params.subtopic.split(","); // Split by commas to support multiple subtopics
 
-    // Find all questions matching the subtopic (case-insensitive)
+    // Find all questions where Sub_topic is in the list of subtopics (case-insensitive)
     const questions = await Question.find({
-      Sub_topic: { $regex: new RegExp(subtopic, "i") }, // case-insensitive search
+      Sub_topic: { $in: subtopics.map((sub) => new RegExp(sub, "i")) }, // case-insensitive search for each subtopic
     });
 
     if (questions.length === 0) {
       return res.status(404).json({
-        message: `No questions found for subtopic(s): ${subtopic}`,
+        message: `No questions found for subtopic(s): ${subtopics.join(", ")}`,
       });
     }
 
@@ -53,6 +52,7 @@ const getQuestionsBySubtopic = async (req, res) => {
     });
   }
 };
+
 
 
 module.exports = {

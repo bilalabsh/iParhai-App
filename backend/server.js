@@ -14,7 +14,7 @@ const fs = require("fs");
 app.use(cors());
 app.use(bodyParser.json());
 const questionRoutes = require("./routes/questionRoutes");
-// const Question = require("./models/questionModel");
+
 
 
 const connectDB=async()=>{
