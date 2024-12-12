@@ -15,7 +15,9 @@ const Intro3Screen = () => {
       {/* Illustration */}
       <View style={styles.imageContainer}>
         <Image
-          source={require('../assets/images/Sales consulting-pana 1.png')}
+          source={{
+            uri: "https://via.placeholder.com/300", // Replace with your image URL
+          }}
           style={styles.image}
           resizeMode="contain"
         />
