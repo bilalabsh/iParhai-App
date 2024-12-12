@@ -47,6 +47,7 @@ const LoginPage = () => {
     const checkUserLogin = async () => {
       try {
         const token = await SecureStore.getItemAsync("authToken");
+        await SecureStore.setItemAsync("userName", userData.name);
         console.log("Token fetched:", token);
         if (token) {
           router.replace("/dashboard"); // Redirect only if token exists

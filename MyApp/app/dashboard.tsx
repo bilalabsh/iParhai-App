@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   Image,
   BackHandler,
 } from "react-native";
@@ -14,6 +13,7 @@ import Layout from "./layout"; // Import your Layout component
 
 const Dashboard = () => {
   const router = useRouter();
+  const [userName, setUserName] = useState(""); // State to store the user's name
 
   // Prevent navigation back to the login/signup screen
   useEffect(() => {
@@ -35,14 +35,21 @@ const Dashboard = () => {
   // Check if user is logged in; redirect to login if not
   useEffect(() => {
     const checkUserLogin = async () => {
-    const token = await SecureStore.getItemAsync("authToken");
+      const token = await SecureStore.getItemAsync("authToken");
       if (!token) {
         router.replace("/loginpage"); // Redirect to login if no token is found
+      } else {
+        // Fetch the user's name from secure storage
+        const name = await SecureStore.getItemAsync("userName");
+        if (name) {
+          setUserName(name); // Set the user's name in state
+        }
       }
     };
 
     checkUserLogin();
   }, []);
+
   const weeklyStreak = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const streakStatus = ["X", "X", "X", "X", "X", "X", "X"]; // Example streak
 
@@ -51,7 +58,7 @@ const Dashboard = () => {
       {/* Main Dashboard Content */}
       <View style={styles.container}>
         {/* Greeting Section */}
-        <Text style={styles.greeting}>Hi, Ishma</Text>
+        <Text style={styles.greeting}>Hi, {userName || "User"}</Text>
         <Text style={styles.description}>
           Let's start by taking a diagnostic test to better understand where you
           stand and personalize a learning curve for you.

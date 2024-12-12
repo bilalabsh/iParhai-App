@@ -50,12 +50,9 @@ const AppIntroScreen = () => {
       {/* Logo and App Name */}
       <Animated.View style={[styles.logoContainer, logoStyle]}>
         <Image
-          source={{
-            uri: "https://via.placeholder.com/100", // Replace with your logo URL
-          }}
+          source={require('../assets/images/logo.jpeg')}
           style={styles.logo}
         />
-        <Text style={styles.appName}>iParhai</Text>
       </Animated.View>
 
       {/* Features List */}
@@ -130,14 +127,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9F9F9",
     padding: 20,
   },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: 30,
+    logoContainer: {
+    width: 400, // Set the width of the container
+    height: 100, // Set the height of the container
+    alignItems: 'center', // Center the image horizontally
+    justifyContent: 'center', // Center the image vertically
   },
   logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
+    width: '100%', // Ensure the image takes the full width of the container
+    height: '100%', // Ensure the image takes the full height of the container
+    resizeMode: 'contain', // Ensure the image is scaled to fit within the container without cropping
   },
   appName: {
     fontSize: 28,
