@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -50,12 +44,9 @@ const AppIntroScreen = () => {
       {/* Logo and App Name */}
       <Animated.View style={[styles.logoContainer, logoStyle]}>
         <Image
-          source={{
-            uri: "https://via.placeholder.com/100", // Replace with your logo URL
-          }}
+          source={require("../assets/images/logo.jpeg.jpg")}
           style={styles.logo}
         />
-        <Text style={styles.appName}>iParhai</Text>
       </Animated.View>
 
       {/* Features List */}
@@ -131,13 +122,15 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logoContainer: {
-    alignItems: "center",
-    marginBottom: 30,
+    width: 400, // Set the width of the container
+    height: 100, // Set the height of the container
+    alignItems: "center", // Center the image horizontally
+    justifyContent: "center", // Center the image vertically
   },
   logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
+    width: "100%", // Ensure the image takes the full width of the container
+    height: "100%", // Ensure the image takes the full height of the container
+    resizeMode: "contain", // Ensure the image is scaled to fit within the container without cropping
   },
   appName: {
     fontSize: 28,

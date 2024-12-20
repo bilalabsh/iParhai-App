@@ -10,23 +10,35 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const QuestionsPage = () => {
+
+const YearlyQuestions = () => {
   const [questions, setQuestions] = useState([]);
-  const [selectedAnswers, setSelectedAnswers] = useState([]);
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchQuestionsFromStorage = async () => {
       try {
-        const questionsData = await AsyncStorage.getItem("questions");
-        if (questionsData) {
-          setQuestions(JSON.parse(questionsData));
+        const storedQuestions = await AsyncStorage.getItem("questions"); // Fetch questions from AsyncStorage
+        if (storedQuestions) {
+          const parsedQuestions = JSON.parse(storedQuestions);
+          setQuestions(
+            parsedQuestions.map((q, index) => ({
+              id: index.toString(), // Assign a unique ID to each question
+              question: q.Question, // Question text
+              image: q.image_q || null, // Image for the question (if available)
+              options: Object.values(q.Options), // Options for the question
+              answer: q.answer, // Correct answer
+              image2: q.image_o || null, // Image for the options (if available)
+              selectedOption: null, // Selected option by the user
+              showAnswer: false, // Whether to show the answer
+            }))
+          );
         }
       } catch (error) {
-        console.error("Error fetching questions from AsyncStorage:", error);
+        console.error("Error retrieving questions from AsyncStorage:", error);
       }
     };
 
-    fetchQuestions();
+    fetchQuestionsFromStorage();
   }, []);
 
   const toggleAnswer = (id) => {
@@ -43,22 +55,18 @@ const QuestionsPage = () => {
         q.id === questionId ? { ...q, selectedOption: option } : q
       )
     );
-
-    setSelectedAnswers((prevSelected) => {
-      const updatedAnswers = prevSelected.filter(
-        (ans) => ans.id !== questionId
-      );
-      return [...updatedAnswers, { id: questionId, selectedOption: option }];
-    });
   };
 
   const renderQuestion = ({ item }) => (
     <View style={styles.questionCard}>
-      <Text style={styles.questionText}>{`Q${item.id}) ${item.question}`}</Text>
+      <Text style={styles.questionText}>{`Q${Number(item.id) + 1})`} ${item.question}`}</Text>
       {item.image && (
         <Image source={{ uri: item.image }} style={styles.questionImage} />
       )}
-      {item.options.map((option, index) => (
+      {item.image2 && (
+        <Image source={{ uri: item.image2 }} style={styles.questionImage} />
+      )}
+      {(item.image2 ? ["A", "B", "C", "D"] : item.options).map((option, index) => (
         <TouchableOpacity
           key={index}
           style={[
@@ -90,7 +98,7 @@ const QuestionsPage = () => {
       <FlatList
         data={questions}
         renderItem={renderQuestion}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listContainer}
       />
     </SafeAreaView>
@@ -163,4 +171,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuestionsPage;
+export default YearlyQuestions;

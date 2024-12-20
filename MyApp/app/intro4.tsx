@@ -15,9 +15,7 @@ const Intro4Screen = () => {
       {/* Illustration */}
       <View style={styles.imageContainer}>
         <Image
-          source={{
-            uri: "https://via.placeholder.com/300", // Replace with the appropriate image URL
-          }}
+          source={require("../assets/images/The Little Things Working.png")}
           style={styles.image}
           resizeMode="contain"
         />

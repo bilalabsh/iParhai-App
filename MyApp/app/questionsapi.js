@@ -2,7 +2,7 @@ import axios from "axios";
 
 const getQuestionsByQuestionNumber = async (season, paperNumber, year) => {
   try {
-    const url = `http://localhost:5000/api/${season}/${paperNumber}/${year}/`;
+    const url = `http://192.168.18.53:5000/api/${season}/${paperNumber}/${year}/`;
     console.log("API Request URL:", url);
     const response = await axios.get(url);
     return response.data;

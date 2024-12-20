@@ -70,6 +70,7 @@ const LoginPage = () => {
         console.log("ab idhar ok");
         console.log("Login Successful", data);
         await SecureStore.setItemAsync("authToken", data.token);
+        
         router.push("/dashboard"); //dashboard
       } else {
         console.error("Login failed", data.message);
